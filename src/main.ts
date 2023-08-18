@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 require('dotenv').config()
 import { ConfigService } from '@nestjs/config/dist/config.service';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -12,6 +13,8 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public')); //js , css, image
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('ejs');
+
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(configService.get<string>('PORT'));
 }
 bootstrap();
