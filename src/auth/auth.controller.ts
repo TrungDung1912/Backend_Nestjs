@@ -49,6 +49,15 @@ export class AuthController {
         return this.authService.processNewToken(refreshToken, response)
     }
 
+    @ResponseMessage("Logout an account")
+    @Post('/logout')
+    Logout(
+        @Res({ passthrough: true }) response: Response,
+        @User() user: IUser
+    ) {
+        return this.authService.logout(response, user)
+    }
+
     @UseGuards(JwtAuthGuard)
     @Get('/profile')
     getProfile(@Req() req) {

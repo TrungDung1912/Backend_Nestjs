@@ -70,7 +70,7 @@ export class AuthService {
     createRefreshToken = (payload: any) => {
         const refreshToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
-            expiresIn: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) / 1000
+            expiresIn: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))
         })
         return refreshToken
     }
@@ -120,5 +120,11 @@ export class AuthService {
         } catch (err) {
             throw new BadRequestException(`Refresh token is not valid. Try login again!`);
         }
+    }
+
+    logout = async (response: Response, user: IUser) => {
+        await this.usersService.updateUserToken("", user._id)
+        response.clearCookie('refresh_token');
+        return "Logout Successfully"
     }
 }
