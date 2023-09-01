@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { UpdateJobDto } from './dto/update-job.dto';
 
@@ -23,6 +23,7 @@ export class JobsController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage("Fetch list user with paginate")
   findAll(
     @Query("current") currentPage: string,
@@ -33,6 +34,7 @@ export class JobsController {
   }
 
   @Get(':id')
+  @Public()
   @ResponseMessage('Fetch job by ID')
   findOne(@Param('id') id: string) {
     let foundUser = this.jobsService.findOne(id);
