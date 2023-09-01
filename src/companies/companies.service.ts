@@ -7,6 +7,7 @@ import { Company, CompanyDocument } from './schemas/company.schema';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import { QueueScheduler } from 'rxjs/internal/scheduler/QueueScheduler';
+import mongoose from 'mongoose';
 
 
 @Injectable()
@@ -56,8 +57,13 @@ export class CompaniesService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} company`;
+  findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Not found company'
+    }
+    return this.companyModel.findOne({
+      _id: id
+    })
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {

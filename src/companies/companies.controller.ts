@@ -31,7 +31,8 @@ export class CompaniesController {
   @Get(':id')
   @Public()
   findOne(@Param('id') id: string) {
-    return this.companiesService.findOne(+id);
+    let foundCompany = this.companiesService.findOne(id);
+    return foundCompany
   }
 
   @Patch(':id')
