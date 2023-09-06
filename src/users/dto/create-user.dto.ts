@@ -5,6 +5,7 @@ import {
     IsDefined,
     IsNotEmptyObject,
     IsObject,
+    IsMongoId,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import mongoose from 'mongoose';
@@ -37,7 +38,8 @@ export class CreateUserDto {
     address: string;
 
     @IsNotEmpty({ message: 'Role khong duoc de trong' })
-    role: string;
+    @IsMongoId({ message: 'Role is following MongoID form' })
+    role: mongoose.Schema.Types.ObjectId;
 
     @IsDefined()
     @IsNotEmptyObject()

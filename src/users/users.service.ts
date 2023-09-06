@@ -9,6 +9,8 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
+import { ConfigService } from '@nestjs/config';
+
 
 @Injectable()
 export class UsersService {
@@ -77,20 +79,24 @@ export class UsersService {
     }
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return 'Not found user'
     }
-    return this.userModel.findOne({
+    return await this.userModel.findOne({
       _id: id
-    }).select("-password");
+    })
+      .select("-password")
+      .populate({
+        path: "role", select: { name: 1, _id: 1 }
+      });
   }
 
   findOneByUsername(username: string) {
-
     return this.userModel.findOne({
       email: username
-    });
+    })
+      .populate({ path: 'role', select: { name: 1, permissions: 1 } });
   }
 
   isValidUserPassword(password: string, hashPassword: string) {
@@ -115,6 +121,10 @@ export class UsersService {
   async remove(id: string, @User() user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return 'Not found user'
+    }
+    const foundUser = await this.userModel.findById(id)
+    if (foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException("Can not remove admin account")
     }
     await this.userModel.updateOne(
       { _id: id },

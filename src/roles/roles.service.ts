@@ -64,19 +64,12 @@ export class RolesService {
       throw new BadRequestException(`Not Found Role`);
     }
     return (await this.roleModal.findById(id))
-      .populate({ path: 'permissions', select: { _id: 1, apiPath: 1, name: 1, method: 1 } })
+      .populate({ path: 'permissions', select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 } })
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not Found Role`);
-    }
-
-    let { name } = updateRoleDto
-
-    const isExist = await this.roleModal.findOne({ name })
-    if (isExist) {
-      throw new BadRequestException(`Role with name ${name} already exists!`)
     }
 
     const updateRole = await this.roleModal.updateOne(
@@ -95,6 +88,10 @@ export class RolesService {
   async remove(_id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(_id)) {
       throw new BadRequestException(`Not Found Role`);
+    }
+    const foundRole = await this.roleModal.findById(_id)
+    if (foundRole.name === 'ADMIN') {
+      throw new BadRequestException(`Can not remove ADMIN role`)
     }
     await this.roleModal.updateOne(
       { _id },

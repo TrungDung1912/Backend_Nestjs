@@ -127,7 +127,18 @@ export class ResumesService {
     });;
   }
 
-  findByUsers = (user: IUser) => {
-    return this.resumeModel.findOne({ userId: user._id })
+  async findByUsers(user: IUser) {
+    return await this.resumeModel.findOne({ userId: user._id })
+      .sort("-createdAt")
+      .populate([
+        {
+          path: "companyId",
+          select: { name: 1 }
+        },
+        {
+          path: "jobId",
+          select: { name: 1 }
+        }
+      ])
   }
 }
