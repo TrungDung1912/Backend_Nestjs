@@ -10,13 +10,18 @@ import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import aqp from 'api-query-params';
 import { ConfigService } from '@nestjs/config';
+import { USER_ROLE } from 'src/databases/sample';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema'
 
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(UserM.name)
-    private userModel: SoftDeleteModel<UserDocument>
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name)
+    private roleModal: SoftDeleteModel<RoleDocument>
   ) { }
 
   getHashPassword = (plain_pass: string) => {
@@ -96,7 +101,11 @@ export class UsersService {
     return this.userModel.findOne({
       email: username
     })
-      .populate({ path: 'role', select: { name: 1, permissions: 1 } });
+      .populate(
+        {
+          path: 'role',
+          select: { name: 1 }
+        });
   }
 
   isValidUserPassword(password: string, hashPassword: string) {
@@ -147,6 +156,8 @@ export class UsersService {
     if (isExist) {
       throw new BadRequestException(`${email} is exist on the system. Try other emails!`);
     }
+    //fetch user role
+    const userRole = await this.userModel.findOne({ name: USER_ROLE })
     const hashPassword = this.getHashPassword(password)
     let newRegister = await this.userModel.create({
       name,
@@ -155,7 +166,7 @@ export class UsersService {
       age,
       gender,
       address,
-      role: "USER"
+      role: userRole?._id
     })
     return newRegister
   }
@@ -170,6 +181,9 @@ export class UsersService {
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne(
       { refreshToken }
-    )
+    ).populate({
+      path: 'role',
+      select: { name: 1 }
+    })
   }
 }
