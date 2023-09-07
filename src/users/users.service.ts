@@ -132,7 +132,7 @@ export class UsersService {
       return 'Not found user'
     }
     const foundUser = await this.userModel.findById(id)
-    if (foundUser.email === 'admin@gmail.com') {
+    if (foundUser && foundUser.email === 'admin@gmail.com') {
       throw new BadRequestException("Can not remove admin account")
     }
     await this.userModel.updateOne(
